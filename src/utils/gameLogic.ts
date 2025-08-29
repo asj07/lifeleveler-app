@@ -18,9 +18,25 @@ export function calculateLevel(xp: number): {
   nextLevelXP: number;
   progress: number;
 } {
-  const level = Math.floor(xp / 100) + 1;
-  const currentLevelXP = (level - 1) * 100;
-  const nextLevelXP = level * 100;
+  // Progressive XP requirements: each level requires more XP
+  // Level 1: 100 XP, Level 2: 250 XP, Level 3: 450 XP, etc.
+  // Formula: XP required for level n = 50 * n * (n + 1)
+  
+  let level = 1;
+  let totalXPRequired = 0;
+  
+  // Find current level by checking cumulative XP requirements
+  while (true) {
+    const xpForNextLevel = 50 * level * (level + 1);
+    if (xp < totalXPRequired + xpForNextLevel) {
+      break;
+    }
+    totalXPRequired += xpForNextLevel;
+    level++;
+  }
+  
+  const currentLevelXP = totalXPRequired;
+  const nextLevelXP = totalXPRequired + 50 * level * (level + 1);
   const progress = Math.min(100, Math.round(((xp - currentLevelXP) / (nextLevelXP - currentLevelXP)) * 100));
   
   return { level, currentLevelXP, nextLevelXP, progress };
