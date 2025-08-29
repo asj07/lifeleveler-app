@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useGameState } from "@/hooks/useGameState";
 import { getTodayKey } from "@/utils/gameLogic";
 import { Header } from "@/components/Header";
@@ -6,6 +6,9 @@ import { Dashboard } from "@/components/Dashboard";
 import { AddQuest } from "@/components/AddQuest";
 import { QuestList } from "@/components/QuestList";
 import { Journal } from "@/components/Journal";
+import { HistoryView } from "@/components/HistoryView";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Home, History } from "lucide-react";
 
 const Index = () => {
   const {
@@ -21,6 +24,7 @@ const Index = () => {
     resetData,
   } = useGameState();
 
+  const [activeTab, setActiveTab] = useState("today");
   const today = getTodayKey();
   const todayLog = gameState.log[today] || { completed: [], notes: "", affirmation: "" };
 
@@ -58,35 +62,54 @@ const Index = () => {
       <div className="max-w-7xl mx-auto">
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
-            <Dashboard
-              profile={gameState.profile}
-              todayCompleted={todayLog.completed.length}
-            />
-          </div>
-          <div className="lg:col-span-1">
-            <AddQuest onAdd={addQuest} />
-          </div>
-        </div>
-        
-        <div className="space-y-6">
-          <QuestList
-            quests={gameState.quests}
-            completedToday={todayLog.completed}
-            onComplete={completeQuest}
-            onUncomplete={uncompleteQuest}
-            onDelete={deleteQuest}
-            onToggleTheme={toggleTheme}
-            theme={gameState.profile.theme}
-          />
-          
-          <Journal
-            notes={todayLog.notes}
-            affirmation={todayLog.affirmation}
-            onSave={updateNotes}
-          />
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto mb-6">
+            <TabsTrigger value="today" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              Today's Quests
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              History
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="today">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              <div className="lg:col-span-2">
+                <Dashboard
+                  profile={gameState.profile}
+                  todayCompleted={todayLog.completed.length}
+                />
+              </div>
+              <div className="lg:col-span-1">
+                <AddQuest onAdd={addQuest} />
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <QuestList
+                quests={gameState.quests}
+                completedToday={todayLog.completed}
+                onComplete={completeQuest}
+                onUncomplete={uncompleteQuest}
+                onDelete={deleteQuest}
+                onToggleTheme={toggleTheme}
+                theme={gameState.profile.theme}
+              />
+              
+              <Journal
+                notes={todayLog.notes}
+                affirmation={todayLog.affirmation}
+                onSave={updateNotes}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history">
+            <HistoryView />
+          </TabsContent>
+        </Tabs>
         
         <footer className="text-center text-xs text-muted-foreground mt-8 pb-4">
           Made for you • Runs 100% offline in your browser • Data stored in localStorage
