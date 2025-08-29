@@ -136,6 +136,48 @@ export type Database = {
         }
         Relationships: []
       }
+      redemptions: {
+        Row: {
+          amount_inr: number
+          coins_redeemed: number
+          created_at: string
+          id: string
+          notes: string | null
+          payment_details: Json | null
+          payment_method: string | null
+          processed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount_inr: number
+          coins_redeemed: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_details?: Json | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount_inr?: number
+          coins_redeemed?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          payment_details?: Json | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_stats: {
         Row: {
           best_streak: number

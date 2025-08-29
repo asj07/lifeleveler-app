@@ -7,8 +7,9 @@ import { AddQuest } from "@/components/AddQuest";
 import { QuestList } from "@/components/QuestList";
 import { Journal } from "@/components/Journal";
 import { HistoryView } from "@/components/HistoryView";
+import { Shop } from "@/components/Shop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, History } from "lucide-react";
+import { Home, History, ShoppingCart } from "lucide-react";
 
 const Index = () => {
   const {
@@ -22,6 +23,7 @@ const Index = () => {
     exportData,
     importData,
     resetData,
+    updateCoins,
   } = useGameState();
 
   const [activeTab, setActiveTab] = useState("today");
@@ -63,7 +65,7 @@ const Index = () => {
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-[400px] mx-auto mb-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Today's Quests
@@ -71,6 +73,10 @@ const Index = () => {
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               History
+            </TabsTrigger>
+            <TabsTrigger value="shop" className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Shop
             </TabsTrigger>
           </TabsList>
 
@@ -108,6 +114,13 @@ const Index = () => {
 
           <TabsContent value="history">
             <HistoryView />
+          </TabsContent>
+
+          <TabsContent value="shop">
+            <Shop 
+              coins={gameState.profile.coins} 
+              onCoinsUpdate={updateCoins}
+            />
           </TabsContent>
         </Tabs>
         

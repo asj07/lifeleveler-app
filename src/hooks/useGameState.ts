@@ -230,6 +230,20 @@ export function useGameState() {
     window.location.reload();
   }, []);
 
+  const updateCoins = (newCoins: number) => {
+    setGameState((prev) => {
+      const updated = {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          coins: newCoins,
+        },
+      };
+      saveState(updated);
+      return updated;
+    });
+  };
+
   return {
     gameState,
     completeQuest,
@@ -241,5 +255,6 @@ export function useGameState() {
     exportData,
     importData,
     resetData,
+    updateCoins,
   };
 }
