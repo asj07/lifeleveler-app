@@ -16,6 +16,8 @@ export interface UserProfile {
   level: number;
   streak: number;
   bestStreak: number;
+  vitality: number;
+  mana: number;
   theme: "light" | "dark";
 }
 

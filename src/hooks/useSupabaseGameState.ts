@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { QuestCategory, QuestType } from '@/types/quest';
-import { calculateLevel } from '@/utils/gameLogic';
+import { calculateLevel, getDefaultQuests } from '@/utils/gameLogic';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserProfile {
@@ -15,6 +15,8 @@ interface UserStats {
   level: number;
   current_streak: number;
   best_streak: number;
+  vitality: number;
+  mana: number;
   last_active: string | null;
 }
 
@@ -47,42 +49,82 @@ export function useSupabaseGameState() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Load profile
-      const { data: profileData } = await supabase
+      // Load profile or create if missing
+      let { data: profileData } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
-      
-      if (profileData) {
-        setProfile(profileData);
-        // Apply theme
-        if (profileData.theme) {
-          document.documentElement.classList.toggle('dark', profileData.theme === 'dark');
-        }
+
+      if (!profileData) {
+        const { data: newProfile } = await supabase
+          .from('profiles')
+          .insert({ user_id: user.id, theme: 'dark' })
+          .select()
+          .single();
+        profileData = newProfile;
       }
 
-      // Load stats
-      const { data: statsData } = await supabase
+      if (profileData) {
+        setProfile(profileData);
+        document.documentElement.classList.toggle('dark', profileData.theme === 'dark');
+      }
+
+      // Load stats or create if missing
+      let { data: statsData } = await supabase
         .from('user_stats')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
-      
+
+      if (!statsData) {
+        const { data: newStats } = await supabase
+          .from('user_stats')
+          .insert({
+            user_id: user.id,
+            xp: 0,
+            coins: 0,
+            level: 1,
+            current_streak: 0,
+            best_streak: 0,
+            vitality: 100,
+            mana: 100,
+          })
+          .select()
+          .single();
+        statsData = newStats;
+      }
+
       if (statsData) {
         setStats(statsData);
-        // Update streak if needed
         await updateStreak(statsData);
       }
 
-      // Load quests
+      // Load quests or insert defaults for new user
       const { data: questsData } = await supabase
         .from('quests')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
-      
-      if (questsData) {
+
+      if (!questsData || questsData.length === 0) {
+        const defaultQuests = getDefaultQuests();
+        const { data: inserted } = await supabase
+          .from('quests')
+          .insert(
+            defaultQuests.map(q => ({
+              user_id: user.id,
+              title: q.title,
+              category: q.category,
+              xp: q.xp,
+              type: q.type,
+            })),
+          )
+          .select();
+        if (inserted) {
+          setQuests(inserted);
+        }
+      } else {
         setQuests(questsData);
       }
 
@@ -422,6 +464,52 @@ export function useSupabaseGameState() {
     }
   };
 
+  const updateVitality = async (newVitality: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('user_stats')
+        .update({ vitality: newVitality })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setStats(prev => prev ? { ...prev, vitality: newVitality } : null);
+    } catch (error) {
+      console.error('Error updating vitality:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update vitality",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateMana = async (newMana: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('user_stats')
+        .update({ mana: newMana })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setStats(prev => prev ? { ...prev, mana: newMana } : null);
+    } catch (error) {
+      console.error('Error updating mana:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update mana",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Load data on mount
   useEffect(() => {
     loadUserData();
@@ -446,6 +534,8 @@ export function useSupabaseGameState() {
       level: stats?.level || 1,
       streak: stats?.current_streak || 0,
       bestStreak: stats?.best_streak || 0,
+      vitality: stats?.vitality || 100,
+      mana: stats?.mana || 100,
       theme: (profile?.theme || 'dark') as "dark" | "light",
     },
     quests: quests.map(q => ({
@@ -461,6 +551,8 @@ export function useSupabaseGameState() {
     toggleTheme,
     updateNotes,
     updateCoins,
+    updateVitality,
+    updateMana,
     exportData: async () => {
       // Export functionality can be implemented if needed
       toast({
