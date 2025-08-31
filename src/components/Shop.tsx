@@ -29,8 +29,6 @@ interface Redemption {
 
 export function Shop({ coins, onCoinsUpdate }: ShopProps) {
   const [redeemAmount, setRedeemAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("upi");
-  const [paymentDetails, setPaymentDetails] = useState("");
   const [loading, setLoading] = useState(false);
   const [redemptions, setRedemptions] = useState<Redemption[]>([]);
   const { toast } = useToast();
@@ -89,15 +87,6 @@ export function Shop({ coins, onCoinsUpdate }: ShopProps) {
       return;
     }
 
-    if (!paymentDetails.trim()) {
-      toast({
-        title: "Payment details required",
-        description: "Please enter your UPI ID or bank details",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
     
     const { data: { user } } = await supabase.auth.getUser();
@@ -115,8 +104,8 @@ export function Shop({ coins, onCoinsUpdate }: ShopProps) {
       user_id: user.id,
       coins_redeemed: coinsToRedeem,
       amount_inr: rupeeValue,
-      payment_method: paymentMethod,
-      payment_details: { [paymentMethod]: paymentDetails },
+      payment_method: null,
+      payment_details: null,
     });
 
     if (error) {
@@ -142,7 +131,6 @@ export function Shop({ coins, onCoinsUpdate }: ShopProps) {
 
       // Reset form
       setRedeemAmount("");
-      setPaymentDetails("");
       fetchRedemptions();
     }
 
@@ -231,35 +219,6 @@ export function Shop({ coins, onCoinsUpdate }: ShopProps) {
                     = ₹{rupeeValue.toFixed(2)}
                   </p>
                 )}
-              </div>
-
-              <div>
-                <Label htmlFor="payment-method">Payment Method</Label>
-                <select
-                  id="payment-method"
-                  className="w-full rounded-md border border-input bg-background px-3 py-2"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                >
-                  <option value="upi">UPI</option>
-                  <option value="bank">Bank Transfer</option>
-                </select>
-              </div>
-
-              <div>
-                <Label htmlFor="payment-details">
-                  {paymentMethod === "upi" ? "UPI ID" : "Bank Account Details"}
-                </Label>
-                <Input
-                  id="payment-details"
-                  placeholder={
-                    paymentMethod === "upi"
-                      ? "yourname@upi"
-                      : "Account number, IFSC code, Name"
-                  }
-                  value={paymentDetails}
-                  onChange={(e) => setPaymentDetails(e.target.value)}
-                />
               </div>
 
               <Button
