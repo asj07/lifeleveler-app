@@ -71,6 +71,8 @@ export function getInitialState(): GameState {
       level: 1,
       streak: 0,
       bestStreak: 0,
+      vitality: 100,
+      mana: 100,
       theme: "dark",
     },
     quests: getDefaultQuests(),

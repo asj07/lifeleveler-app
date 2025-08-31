@@ -249,6 +249,34 @@ export function useGameState() {
     });
   };
 
+  const updateVitality = (newVitality: number) => {
+    setGameState((prev) => {
+      const updated = {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          vitality: newVitality,
+        },
+      };
+      saveState(updated);
+      return updated;
+    });
+  };
+
+  const updateMana = (newMana: number) => {
+    setGameState((prev) => {
+      const updated = {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          mana: newMana,
+        },
+      };
+      saveState(updated);
+      return updated;
+    });
+  };
+
   return {
     gameState,
     completeQuest,
@@ -261,5 +289,7 @@ export function useGameState() {
     importData,
     resetData,
     updateCoins,
+    updateVitality,
+    updateMana,
   };
 }

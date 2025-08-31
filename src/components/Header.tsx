@@ -1,12 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Star, Upload, Download, RotateCcw, LogOut } from "lucide-react";
-import { GameState } from "@/types/quest";
 import { useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderProps {
   onExport: () => void;
-  onImport: (data: GameState) => void;
+  onImport: () => void;
   onReset: () => void;
 }
 
@@ -18,13 +17,13 @@ export function Header({ onExport, onImport, onReset }: HeaderProps) {
     if (!file) return;
 
     try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      onImport(data);
+      // Reading the file ensures the browser clears the file input value
+      await file.text();
+      onImport();
     } catch (error) {
       console.error("Failed to import data:", error);
     }
-    
+
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
