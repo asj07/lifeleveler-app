@@ -6,6 +6,7 @@ import {
   getTodayKey,
   updateStreak,
   calculateCoins,
+  calculateLevel,
   uuid,
   getInitialState,
 } from "@/utils/gameLogic";
@@ -35,14 +36,16 @@ export function useGameState() {
 
       const coins = calculateCoins(quest.xp);
       const isFirstToday = todayLog.completed.length === 0;
+      const newXP = gameState.profile.xp + quest.xp;
+      const levelInfo = calculateLevel(newXP);
 
       const newState: GameState = {
         ...gameState,
         profile: {
           ...gameState.profile,
-          xp: gameState.profile.xp + quest.xp,
+          xp: newXP,
           coins: gameState.profile.coins + coins,
-          level: Math.floor((gameState.profile.xp + quest.xp) / 100) + 1,
+          level: levelInfo.level,
           streak: isFirstToday ? gameState.profile.streak + 1 : gameState.profile.streak,
           bestStreak: isFirstToday
             ? Math.max(gameState.profile.bestStreak, gameState.profile.streak + 1)
@@ -78,14 +81,16 @@ export function useGameState() {
       if (!todayLog || !todayLog.completed.includes(questId)) return;
 
       const coins = calculateCoins(quest.xp);
+      const newXP = Math.max(0, gameState.profile.xp - quest.xp);
+      const levelInfo = calculateLevel(newXP);
 
       const newState: GameState = {
         ...gameState,
         profile: {
           ...gameState.profile,
-          xp: Math.max(0, gameState.profile.xp - quest.xp),
+          xp: newXP,
           coins: Math.max(0, gameState.profile.coins - coins),
-          level: Math.floor(Math.max(0, gameState.profile.xp - quest.xp) / 100) + 1,
+          level: levelInfo.level,
         },
         log: {
           ...gameState.log,

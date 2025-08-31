@@ -8,8 +8,9 @@ interface DashboardProps {
 }
 
 export function Dashboard({ profile, todayCompleted }: DashboardProps) {
-  const { level, progress } = calculateLevel(profile.xp);
-  const xpInCurrentLevel = profile.xp % 100;
+  const levelInfo = calculateLevel(profile.xp);
+  const xpInCurrentLevel = profile.xp - levelInfo.currentLevelXP;
+  const xpNeededForNext = levelInfo.nextLevelXP - levelInfo.currentLevelXP;
 
   return (
     <div className="glass-card rounded-2xl p-6">
@@ -20,18 +21,18 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
             <User className="w-10 h-10 text-primary" />
           </div>
           <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground">
-            Lv.{level}
+            Lv.{levelInfo.level}
           </div>
         </div>
 
         {/* XP Progress */}
         <div className="flex-1 w-full lg:w-auto">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">Level {level}</span>
-            <span className="text-sm font-bold">{xpInCurrentLevel} / 100 XP</span>
+            <span className="text-sm font-medium text-muted-foreground">Level {levelInfo.level}</span>
+            <span className="text-sm font-bold">{xpInCurrentLevel} / {xpNeededForNext} XP</span>
           </div>
           <div className="xp-bar">
-            <div className="xp-bar-fill" style={{ width: `${progress}%` }} />
+            <div className="xp-bar-fill" style={{ width: `${levelInfo.progress}%` }} />
           </div>
           <div className="flex items-center gap-2 mt-2">
             {profile.bestStreak > 0 && (
