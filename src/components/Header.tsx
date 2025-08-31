@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Star, Upload, Download, RotateCcw } from "lucide-react";
+import { Star, Upload, Download, RotateCcw, LogOut } from "lucide-react";
 import { GameState } from "@/types/quest";
 import { useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderProps {
   onExport: () => void;
@@ -32,6 +33,29 @@ export function Header({ onExport, onImport, onReset }: HeaderProps) {
   const handleReset = () => {
     if (window.confirm("Hard reset will erase all your data. Continue?")) {
       onReset();
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      // Clean up auth state
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Attempt global sign out
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Ignore errors
+      }
+      
+      // Force page reload for clean state
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
@@ -87,6 +111,15 @@ export function Header({ onExport, onImport, onReset }: HeaderProps) {
           >
             <RotateCcw className="w-4 h-4" />
             Reset
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSignOut}
+            className="gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
           </Button>
         </div>
       </div>
