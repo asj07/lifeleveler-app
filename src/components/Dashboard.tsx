@@ -11,6 +11,9 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
   const levelInfo = calculateLevel(profile.xp);
   const xpInCurrentLevel = profile.xp - levelInfo.currentLevelXP;
   const xpNeededForNext = levelInfo.nextLevelXP - levelInfo.currentLevelXP;
+  // alias to prevent runtime errors from stale references
+  const level = levelInfo.level;
+  const progress = levelInfo.progress;
 
   return (
     <div className="glass-card rounded-2xl p-6">
