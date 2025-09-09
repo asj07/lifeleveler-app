@@ -219,10 +219,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      user_redemptions: {
+        Row: {
+          amount_inr: number | null
+          coins_redeemed: number | null
+          created_at: string | null
+          id: string | null
+          notes: string | null
+          payment_method: string | null
+          processed_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount_inr?: number | null
+          coins_redeemed?: number | null
+          created_at?: string | null
+          id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount_inr?: number | null
+          coins_redeemed?: number | null
+          created_at?: string | null
+          id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_admin_redemptions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          amount_inr: number
+          coins_redeemed: number
+          created_at: string
+          id: string
+          notes: string
+          payment_details: Json
+          payment_method: string
+          processed_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
