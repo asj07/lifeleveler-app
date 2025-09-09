@@ -177,14 +177,4 @@
     font-weight: 700;
     box-shadow: 0 0 20px hsl(var(--primary-glow) / 0.3);
   }
-  
-  .glass-card {
-    @apply backdrop-blur-sm bg-background/95 border border-border/50 shadow-lg transition-all;
-  }
-  
-  /* Touch-friendly button styles */
-  .touch-manipulation {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
 }
