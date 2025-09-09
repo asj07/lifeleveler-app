@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Quest, QuestCategory } from "@/types/quest";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Coins, Calendar, Sun, Moon } from "lucide-react";
+import { Trash2, Coins, Calendar, Sun, Moon, Timer } from "lucide-react";
 import { calculateCoins } from "@/utils/gameLogic";
+import { QuestTimer } from "@/components/QuestTimer";
 
 interface QuestListProps {
   quests: Quest[];
@@ -28,6 +29,7 @@ export function QuestList({
 }: QuestListProps) {
   const [activeTab, setActiveTab] = useState<TabFilter>("All");
   const [filteredQuests, setFilteredQuests] = useState<Quest[]>(quests);
+  const [activeTimer, setActiveTimer] = useState<string | null>(null);
 
   useEffect(() => {
     let filtered = quests;
@@ -141,6 +143,15 @@ export function QuestList({
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => setActiveTimer(quest.id)}
+                    className="text-muted-foreground hover:text-foreground"
+                    title="Start timer"
+                  >
+                    <Timer className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleDelete(quest.id)}
                     className="text-destructive hover:text-destructive/80"
                   >
@@ -152,6 +163,14 @@ export function QuestList({
           })
         )}
       </div>
+
+      {/* Timer Modal */}
+      {activeTimer && (
+        <QuestTimer
+          questTitle={quests.find(q => q.id === activeTimer)?.title || "Quest"}
+          onClose={() => setActiveTimer(null)}
+        />
+      )}
     </div>
   );
 }
