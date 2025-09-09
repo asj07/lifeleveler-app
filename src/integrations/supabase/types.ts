@@ -187,8 +187,10 @@ export type Database = {
           id: string
           last_active: string | null
           level: number
+          mana: number
           updated_at: string
           user_id: string
+          vitality: number
           xp: number
         }
         Insert: {
@@ -199,8 +201,10 @@ export type Database = {
           id?: string
           last_active?: string | null
           level?: number
+          mana?: number
           updated_at?: string
           user_id: string
+          vitality?: number
           xp?: number
         }
         Update: {
@@ -211,8 +215,10 @@ export type Database = {
           id?: string
           last_active?: string | null
           level?: number
+          mana?: number
           updated_at?: string
           user_id?: string
+          vitality?: number
           xp?: number
         }
         Relationships: []

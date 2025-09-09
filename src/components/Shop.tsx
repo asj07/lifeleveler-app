@@ -105,7 +105,6 @@ export function Shop({ coins, onCoinsUpdate }: ShopProps) {
       coins_redeemed: coinsToRedeem,
       amount_inr: rupeeValue,
       payment_method: null,
-      payment_details: null,
     });
 
     if (error) {
