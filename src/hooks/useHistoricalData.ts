@@ -46,7 +46,7 @@ export function useHistoricalData(selectedDate: Date) {
         .select("notes, affirmation")
         .eq("date", dateStr)
         .eq("user_id", user.id)
-        .single();
+        .maybeSingle();
 
       if (journal) {
         setJournalEntry(prev => ({
