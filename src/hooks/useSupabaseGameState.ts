@@ -4,7 +4,8 @@ import { QuestCategory, QuestType } from '@/types/quest';
 import { calculateLevel, getDefaultQuests } from '@/utils/gameLogic';
 import { useToast } from '@/hooks/use-toast';
 
-interface UserProfile {
+interface ProfileData {
+  user_id: string;
   display_name: string | null;
   theme: string;
 }
@@ -37,8 +38,9 @@ interface QuestCompletion {
 
 export function useSupabaseGameState() {
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [userId, setUserId] = useState<string>('');
   const [quests, setQuests] = useState<Quest[]>([]);
   const [completions, setCompletions] = useState<QuestCompletion[]>([]);
   const { toast } = useToast();
@@ -65,10 +67,12 @@ export function useSupabaseGameState() {
         profileData = newProfile;
       }
 
+      // Save profile data
       if (profileData) {
         setProfile(profileData);
         document.documentElement.classList.toggle('dark', profileData.theme === 'dark');
       }
+      setUserId(user.id);
 
       // Load stats or create if missing
       let { data: statsData } = await supabase
@@ -529,13 +533,12 @@ export function useSupabaseGameState() {
   return {
     loading,
     profile: {
+      id: userId,
       xp: stats?.xp || 0,
       coins: stats?.coins || 0,
       level: stats?.level || 1,
       streak: stats?.current_streak || 0,
       bestStreak: stats?.best_streak || 0,
-      vitality: stats?.vitality || 100,
-      mana: stats?.mana || 100,
       theme: (profile?.theme || 'dark') as "dark" | "light",
     },
     quests: quests.map(q => ({

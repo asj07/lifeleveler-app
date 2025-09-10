@@ -11,13 +11,12 @@ export interface Quest {
 }
 
 export interface UserProfile {
+  id: string;
   xp: number;
   coins: number;
   level: number;
   streak: number;
   bestStreak: number;
-  vitality: number;
-  mana: number;
   theme: "light" | "dark";
 }
 

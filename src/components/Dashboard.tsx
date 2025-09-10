@@ -1,6 +1,9 @@
 import { UserProfile } from "@/types/quest";
 import { calculateLevel } from "@/utils/gameLogic";
-import { User, Zap, Coins, Flame, Target } from "lucide-react";
+import { Zap, Coins, Flame, Target } from "lucide-react";
+import { AvatarUpload } from "./AvatarUpload";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 interface DashboardProps {
   profile: UserProfile;
@@ -8,21 +11,39 @@ interface DashboardProps {
 }
 
 export function Dashboard({ profile, todayCompleted }: DashboardProps) {
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const levelInfo = calculateLevel(profile.xp);
   const xpInCurrentLevel = profile.xp - levelInfo.currentLevelXP;
   const xpNeededForNext = levelInfo.nextLevelXP - levelInfo.currentLevelXP;
-  // alias to prevent runtime errors from stale references
-  const level = levelInfo.level;
-  const progress = levelInfo.progress;
+
+  useEffect(() => {
+    const loadAvatar = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (data?.avatar_url) {
+          setAvatarUrl(data.avatar_url);
+        }
+      }
+    };
+    loadAvatar();
+  }, []);
 
   return (
     <div className="glass-card rounded-2xl p-6">
       <div className="flex flex-col lg:flex-row items-center gap-6">
         {/* Avatar */}
         <div className="relative">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary/20 via-primary/10 to-secondary/20 border-2 border-primary/30 flex items-center justify-center">
-            <User className="w-10 h-10 text-primary" />
-          </div>
+          <AvatarUpload 
+            avatarUrl={avatarUrl}
+            userId={profile.id}
+            onAvatarUpdate={setAvatarUrl}
+          />
           <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground">
             Lv.{levelInfo.level}
           </div>

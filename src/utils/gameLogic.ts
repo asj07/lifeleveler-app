@@ -66,13 +66,12 @@ export function getDefaultQuests(): Quest[] {
 export function getInitialState(): GameState {
   return {
     profile: {
+      id: "default",
       xp: 0,
       coins: 0,
       level: 1,
       streak: 0,
       bestStreak: 0,
-      vitality: 100,
-      mana: 100,
       theme: "dark",
     },
     quests: getDefaultQuests(),

@@ -11,7 +11,6 @@ import { Shop } from "@/components/Shop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Home, History, ShoppingCart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Hud } from "@/components/Hud";
 
 const Index = () => {
   const {
@@ -85,13 +84,6 @@ const Index = () => {
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
-
-        <Hud
-          vitality={profile.vitality}
-          mana={profile.mana}
-          theme={profile.theme as "dark" | "light"}
-          onToggleTheme={toggleTheme}
-        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6">
