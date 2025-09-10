@@ -107,6 +107,7 @@ const Index = () => {
                 <Dashboard
                   profile={profile}
                   todayCompleted={completedToday.length}
+                  onToggleTheme={toggleTheme}
                 />
               </div>
               <div className="lg:col-span-1">
