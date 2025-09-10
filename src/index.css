@@ -95,6 +95,9 @@
     --shadow-lg: 0 10px 30px hsl(0 0% 0% / 0.08);
     --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.2);
     --shadow-card: 0 8px 20px hsl(245 58% 51% / 0.08);
+    
+    --gradient-radial-1: radial-gradient(1200px 600px at 80% -10%, hsl(245 58% 51% / 0.1), transparent);
+    --gradient-radial-2: radial-gradient(900px 500px at -10% 20%, hsl(163 46% 46% / 0.08), transparent);
   }
 }
 
@@ -107,6 +110,12 @@
     @apply bg-background text-foreground;
     background-image: var(--gradient-radial-1), var(--gradient-radial-2);
     min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Smooth theme transitions */
+  * {
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
   }
 }
 
@@ -116,6 +125,7 @@
     border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: var(--shadow-card);
     backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
   }
 
   .xp-bar {
@@ -132,7 +142,7 @@
   }
 
   .stat-card {
-    @apply p-3 rounded-xl;
+    @apply p-2 sm:p-3 rounded-xl;
     background: hsl(var(--muted) / 0.2);
     border: 1px solid hsl(var(--border) / 0.3);
     transition: var(--transition);
@@ -144,7 +154,7 @@
   }
 
   .quest-item {
-    @apply p-3 rounded-xl;
+    @apply rounded-xl;
     background: hsl(var(--card-glow) / 0.5);
     border: 1px solid hsl(var(--border) / 0.3);
     transition: var(--transition);
@@ -161,7 +171,7 @@
   }
 
   .tab-button {
-    @apply px-4 py-2 rounded-full text-sm font-medium;
+    @apply px-3 sm:px-4 py-2 rounded-full font-medium;
     background: hsl(var(--muted) / 0.2);
     border: 1px solid hsl(var(--border) / 0.3);
     transition: var(--transition);
@@ -176,5 +186,21 @@
     color: hsl(var(--primary-foreground));
     font-weight: 700;
     box-shadow: 0 0 20px hsl(var(--primary-glow) / 0.3);
+  }
+  
+  /* Mobile-specific improvements */
+  @media (max-width: 640px) {
+    .glass-card {
+      backdrop-filter: blur(8px);
+    }
+    
+    .tab-button {
+      font-size: 0.75rem;
+      padding: 0.5rem 0.75rem;
+    }
+    
+    .stat-card {
+      padding: 0.5rem;
+    }
   }
 }
