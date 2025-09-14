@@ -13,8 +13,8 @@ interface QuestListProps {
   onComplete: (questId: string) => void;
   onUncomplete: (questId: string) => void;
   onDelete: (questId: string) => void;
-  onToggleTheme: () => void;
-  theme: "light" | "dark";
+}
+
 type TabFilter = "All" | QuestCategory | "Completed";
 
 export function QuestList({
