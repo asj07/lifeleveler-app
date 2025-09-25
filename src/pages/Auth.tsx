@@ -82,14 +82,16 @@ export default function Auth() {
         // Continue even if this fails
       }
 
-      const redirectUrl = `${window.location.origin}/`;
-      
+      // Prefer deployment URL from env (e.g., Vercel), fallback to current origin in dev
+      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+      const redirectUrl = `${siteUrl}/`;
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl
-        }
+          emailRedirectTo: redirectUrl,
+        },
       });
 
       if (error) {
