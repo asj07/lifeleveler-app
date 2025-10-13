@@ -571,11 +571,61 @@ export function useSupabaseGameState() {
       });
     },
     resetData: async () => {
-      // Reset functionality would delete all user data
-      toast({
-        title: "Reset",
-        description: "Please delete your account to reset all data",
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      try {
+        // Delete all user data in correct order (respecting foreign keys)
+        await supabase.from('quest_completions').delete().eq('user_id', user.id);
+        await supabase.from('journal_entries').delete().eq('user_id', user.id);
+        await supabase.from('quests').delete().eq('user_id', user.id);
+        await supabase.from('redemptions').delete().eq('user_id', user.id);
+        
+        // Reset user stats to defaults
+        await supabase
+          .from('user_stats')
+          .update({
+            xp: 0,
+            coins: 0,
+            level: 1,
+            current_streak: 0,
+            best_streak: 0,
+            vitality: 100,
+            mana: 100,
+            last_active: null
+          })
+          .eq('user_id', user.id);
+
+        // Create default quests again
+        const defaultQuests = [
+          { user_id: user.id, title: 'Move 20 minutes', category: 'Health', xp: 20, type: 'daily' },
+          { user_id: user.id, title: '8 glasses of water', category: 'Health', xp: 15, type: 'daily' },
+          { user_id: user.id, title: 'Sleep 7+ hours', category: 'Health', xp: 25, type: 'daily' },
+          { user_id: user.id, title: 'Track spending today', category: 'Wealth', xp: 15, type: 'daily' },
+          { user_id: user.id, title: 'Learn a skill 30 min', category: 'Wealth', xp: 25, type: 'daily' },
+          { user_id: user.id, title: 'Build income 30 min', category: 'Wealth', xp: 25, type: 'daily' },
+          { user_id: user.id, title: 'Send 1 gratitude msg', category: 'Relationships', xp: 15, type: 'daily' },
+          { user_id: user.id, title: 'One deep conversation', category: 'Relationships', xp: 25, type: 'daily' },
+          { user_id: user.id, title: 'Kindness: no gossip', category: 'Relationships', xp: 20, type: 'daily' }
+        ];
+        
+        await supabase.from('quests').insert(defaultQuests);
+
+        toast({
+          title: "Reset Complete",
+          description: "All your data has been reset to defaults",
+        });
+
+        // Reload to refresh all data
+        window.location.reload();
+      } catch (error) {
+        console.error('Error resetting data:', error);
+        toast({
+          title: "Reset Failed",
+          description: "There was an error resetting your data",
+          variant: "destructive",
+        });
+      }
     },
   };
 }
