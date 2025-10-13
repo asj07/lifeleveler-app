@@ -22,6 +22,7 @@ const Index = () => {
     uncompleteQuest,
     addQuest,
     deleteQuest,
+    toggleTheme,
     updateNotes,
     exportData,
     importData,
@@ -70,7 +71,7 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-background">
+      <div className="min-h-screen p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
           <Skeleton className="h-32 w-full" />
           <Skeleton className="h-96 w-full" />
@@ -80,16 +81,15 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen p-3 sm:p-4 lg:p-6 xl:p-8 bg-background">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-4 sm:mb-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Today's Quests</span>
-              <span className="sm:hidden">Today</span>
+              Today's Quests
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -102,11 +102,12 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="today">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 mb-4 lg:mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               <div className="lg:col-span-2">
                 <Dashboard
                   profile={profile}
                   todayCompleted={completedToday.length}
+                  onToggleTheme={toggleTheme}
                 />
               </div>
               <div className="lg:col-span-1">
@@ -114,13 +115,15 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="space-y-4 lg:space-y-6">
+            <div className="space-y-6">
               <QuestList
                 quests={quests}
                 completedToday={completedToday}
                 onComplete={completeQuest}
                 onUncomplete={uncompleteQuest}
                 onDelete={deleteQuest}
+                onToggleTheme={toggleTheme}
+                theme={profile.theme as "dark" | "light"}
               />
               
               <Journal
@@ -143,7 +146,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
         
-        <footer className="text-center text-xs text-muted-foreground mt-6 sm:mt-8 pb-4">
+        <footer className="text-center text-xs text-muted-foreground mt-8 pb-4">
           Your progress is automatically saved to the cloud
         </footer>
       </div>

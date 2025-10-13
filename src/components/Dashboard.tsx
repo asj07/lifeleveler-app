@@ -7,19 +7,18 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useTheme } from "next-themes";
 
 interface DashboardProps {
   profile: UserProfile;
   todayCompleted: number;
+  onToggleTheme: () => void;
 }
 
-export function Dashboard({ profile, todayCompleted }: DashboardProps) {
+export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
   const levelInfo = calculateLevel(profile.xp);
   const xpInCurrentLevel = profile.xp - levelInfo.currentLevelXP;
@@ -109,13 +108,9 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
     }
   };
 
-  const handleToggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
-      <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
+    <div className="glass-card rounded-2xl p-6">
+      <div className="flex flex-col lg:flex-row items-center gap-6">
         {/* Avatar and Profile */}
         <div className="flex flex-col items-center gap-3">
           <div className="relative">
@@ -124,7 +119,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               userId={profile.id}
               onAvatarUpdate={setAvatarUrl}
             />
-            <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground whitespace-nowrap">
+            <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground">
               Lv.{levelInfo.level}
             </div>
           </div>
@@ -136,7 +131,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
                 <Input
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="w-28 sm:w-32 h-8 text-sm"
+                  className="w-32 h-8 text-sm"
                   placeholder="Your name"
                   autoFocus
                 />
@@ -159,7 +154,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-center">
+                <span className="text-sm font-medium">
                   {displayName || "Add your name"}
                 </span>
                 <Button
@@ -175,21 +170,19 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
           </div>
 
           {/* Profile Actions */}
-          <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              onClick={handleToggleTheme}
+              onClick={onToggleTheme}
               className="gap-2"
             >
-              {theme === 'dark' ? (
+              {profile.theme === 'dark' ? (
                 <Sun className="w-4 h-4" />
               ) : (
                 <Moon className="w-4 h-4" />
               )}
-              <span className="hidden sm:inline">
-                {theme === 'dark' ? 'Light' : 'Dark'}
-              </span>
+              {profile.theme === 'dark' ? 'Light' : 'Dark'}
             </Button>
             <Button
               size="sm"
@@ -198,7 +191,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               className="gap-2"
             >
               <LogOut className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign Out</span>
+              Sign Out
             </Button>
           </div>
         </div>
@@ -222,13 +215,13 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-3 w-full lg:w-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
           <div className="stat-card">
             <div className="flex items-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">XP</span>
             </div>
-            <div className="text-lg sm:text-xl font-bold">{profile.xp}</div>
+            <div className="text-xl font-bold">{profile.xp}</div>
           </div>
 
           <div className="stat-card">
@@ -236,7 +229,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               <Coins className="w-4 h-4 text-gold" />
               <span className="text-xs text-muted-foreground">Coins</span>
             </div>
-            <div className="text-lg sm:text-xl font-bold text-gold">{profile.coins}</div>
+            <div className="text-xl font-bold text-gold">{profile.coins}</div>
           </div>
 
           <div className="stat-card">
@@ -244,7 +237,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               <Flame className="w-4 h-4 text-destructive" />
               <span className="text-xs text-muted-foreground">Streak</span>
             </div>
-            <div className="text-lg sm:text-xl font-bold">
+            <div className="text-xl font-bold">
               {profile.streak}
               <span className="text-xs text-muted-foreground ml-1">days</span>
             </div>
@@ -255,7 +248,7 @@ export function Dashboard({ profile, todayCompleted }: DashboardProps) {
               <Target className="w-4 h-4 text-secondary" />
               <span className="text-xs text-muted-foreground">Today</span>
             </div>
-            <div className="text-lg sm:text-xl font-bold">
+            <div className="text-xl font-bold">
               {todayCompleted}
               <span className="text-xs text-muted-foreground ml-1">done</span>
             </div>

@@ -28,7 +28,7 @@ export function Journal({ notes: initialNotes, affirmation: initialAffirmation, 
   };
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
+    <div className="glass-card rounded-2xl p-6">
       <h2 className="text-lg font-bold mb-4">Journal & Reflection</h2>
       
       <div className="grid gap-4">
@@ -39,7 +39,7 @@ export function Journal({ notes: initialNotes, affirmation: initialAffirmation, 
             placeholder="Take a moment to reflect on your day..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="min-h-[80px] sm:min-h-[100px]"
+            className="min-h-[100px]"
           />
         </div>
         

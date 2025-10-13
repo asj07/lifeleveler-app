@@ -27,7 +27,7 @@ export function AddQuest({ onAdd }: AddQuestProps) {
   };
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
+    <div className="glass-card rounded-2xl p-6">
       <h2 className="text-lg font-bold mb-4">Add Custom Quest</h2>
       
       <div className="grid gap-4">
@@ -96,7 +96,7 @@ export function AddQuest({ onAdd }: AddQuestProps) {
           Add Quest
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center hidden sm:block">
+        <p className="text-xs text-muted-foreground text-center">
           Tip: Use <kbd className="px-2 py-1 rounded bg-muted text-xs">Ctrl/⌘ + K</kbd> to quick-complete the first quest
         </p>
       </div>

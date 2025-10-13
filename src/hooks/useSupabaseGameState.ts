@@ -390,6 +390,7 @@ export function useSupabaseGameState() {
       if (error) throw error;
 
       setProfile(prev => prev ? { ...prev, theme: newTheme } : null);
+      document.documentElement.classList.toggle('dark', newTheme === 'dark');
     } catch (error) {
       console.error('Error toggling theme:', error);
     }

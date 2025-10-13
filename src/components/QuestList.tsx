@@ -5,7 +5,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Coins, Calendar, Sun, Moon, Timer } from "lucide-react";
 import { calculateCoins } from "@/utils/gameLogic";
 import { QuestTimer } from "@/components/QuestTimer";
-import { useTheme } from "next-themes";
 
 interface QuestListProps {
   quests: Quest[];
@@ -13,6 +12,8 @@ interface QuestListProps {
   onComplete: (questId: string) => void;
   onUncomplete: (questId: string) => void;
   onDelete: (questId: string) => void;
+  onToggleTheme: () => void;
+  theme: "light" | "dark";
 }
 
 type TabFilter = "All" | QuestCategory | "Completed";
@@ -23,11 +24,12 @@ export function QuestList({
   onComplete,
   onUncomplete,
   onDelete,
+  onToggleTheme,
+  theme,
 }: QuestListProps) {
   const [activeTab, setActiveTab] = useState<TabFilter>("All");
   const [filteredQuests, setFilteredQuests] = useState<Quest[]>(quests);
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     let filtered = quests;
@@ -54,28 +56,25 @@ export function QuestList({
       onDelete(questId);
     }
   };
-  const handleToggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
 
   const tabs: TabFilter[] = ["All", "Health", "Wealth", "Relationships", "Completed"];
 
   return (
-    <div className="glass-card rounded-2xl p-4 sm:p-6">
+    <div className="glass-card rounded-2xl p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`tab-button text-xs sm:text-sm ${activeTab === tab ? "active" : ""}`}
+              className={`tab-button ${activeTab === tab ? "active" : ""}`}
             >
               {tab}
             </button>
           ))}
         </div>
         
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+        <div className="flex items-center gap-2">
           <span className="text-xs px-3 py-1 rounded-full bg-muted/30 border border-border/50">
             {new Date().toLocaleDateString(undefined, {
               weekday: "short",
@@ -86,7 +85,7 @@ export function QuestList({
           <Button
             variant="outline"
             size="sm"
-            onClick={handleToggleTheme}
+            onClick={onToggleTheme}
             className="gap-2"
           >
             {theme === "dark" ? (
@@ -94,9 +93,6 @@ export function QuestList({
             ) : (
               <Moon className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">
-              {theme === "dark" ? "Light" : "Dark"}
-            </span>
           </Button>
         </div>
       </div>
@@ -114,22 +110,20 @@ export function QuestList({
             return (
               <div
                 key={quest.id}
-                className={`quest-item ${isCompleted ? "completed" : ""} flex items-start sm:items-center gap-3 p-3 sm:p-4`}
+                className={`quest-item ${isCompleted ? "completed" : ""} flex items-center gap-3`}
               >
-                <div className="flex-shrink-0 mt-1 sm:mt-0">
-                  <Checkbox
-                    checked={isCompleted}
-                    onCheckedChange={(checked) =>
-                      handleToggle(quest.id, checked as boolean)
-                    }
-                  />
-                </div>
+                <Checkbox
+                  checked={isCompleted}
+                  onCheckedChange={(checked) =>
+                    handleToggle(quest.id, checked as boolean)
+                  }
+                />
                 
                 <div className="flex-1">
                   <div className={`font-medium ${isCompleted ? "line-through" : ""}`}>
                     {quest.title}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                     <span>{quest.category}</span>
                     <span>•</span>
                     <span>{quest.xp} XP</span>
@@ -141,30 +135,28 @@ export function QuestList({
                   </div>
                 </div>
                 
-                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+                <div className="flex items-center gap-2">
                   <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-gold/20 text-gold border border-gold/30">
                     <Coins className="w-3 h-3" />
                     +{coins}
                   </span>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setActiveTimer(quest.id)}
-                      className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
-                      title="Start timer"
-                    >
-                      <Timer className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(quest.id)}
-                      className="text-destructive hover:text-destructive/80 h-8 w-8 p-0"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTimer(quest.id)}
+                    className="text-muted-foreground hover:text-foreground"
+                    title="Start timer"
+                  >
+                    <Timer className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(quest.id)}
+                    className="text-destructive hover:text-destructive/80"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             );
