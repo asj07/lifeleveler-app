@@ -1,16 +1,22 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Square, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface QuestTimerProps {
+  questId: string;
   questTitle: string;
   onClose: () => void;
 }
 
-export function QuestTimer({ questTitle, onClose }: QuestTimerProps) {
+export function QuestTimer({ questId, questTitle, onClose }: QuestTimerProps) {
   const [seconds, setSeconds] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
+  const startTimeRef = useRef<Date | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isRunning) {
@@ -42,16 +48,82 @@ export function QuestTimer({ questTitle, onClose }: QuestTimerProps) {
     return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
+    if (!isRunning) {
+      // Start timer - create session
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('quest_timer_sessions')
+        .insert({
+          user_id: user.id,
+          quest_id: questId,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to start timer session",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      sessionIdRef.current = data.id;
+      startTimeRef.current = new Date();
+    } else {
+      // Pause timer - update session
+      if (sessionIdRef.current) {
+        await supabase
+          .from('quest_timer_sessions')
+          .update({
+            ended_at: new Date().toISOString(),
+            duration_seconds: seconds,
+          })
+          .eq('id', sessionIdRef.current);
+      }
+    }
+    
     setIsRunning(!isRunning);
   };
 
-  const handleStop = () => {
+  const handleStop = async () => {
+    if (sessionIdRef.current && seconds > 0) {
+      await supabase
+        .from('quest_timer_sessions')
+        .update({
+          ended_at: new Date().toISOString(),
+          duration_seconds: seconds,
+        })
+        .eq('id', sessionIdRef.current);
+      
+      toast({
+        title: "Session saved",
+        description: `${formatTime(seconds)} tracked for this quest`,
+      });
+    }
+    
     setIsRunning(false);
     setSeconds(0);
+    sessionIdRef.current = null;
+    startTimeRef.current = null;
   };
 
-  const handleClose = () => {
+  const handleClose = async () => {
+    // Save session if timer was running
+    if (sessionIdRef.current && isRunning) {
+      await supabase
+        .from('quest_timer_sessions')
+        .update({
+          ended_at: new Date().toISOString(),
+          duration_seconds: seconds,
+        })
+        .eq('id', sessionIdRef.current);
+    }
+    
     setIsRunning(false);
     onClose();
   };

@@ -167,6 +167,7 @@ export function QuestList({
       {/* Timer Modal */}
       {activeTimer && (
         <QuestTimer
+          questId={activeTimer}
           questTitle={quests.find(q => q.id === activeTimer)?.title || "Quest"}
           onClose={() => setActiveTimer(null)}
         />

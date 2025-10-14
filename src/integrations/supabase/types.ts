@@ -106,6 +106,36 @@ export type Database = {
           },
         ]
       }
+      quest_timer_sessions: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          quest_id: string
+          started_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          quest_id: string
+          started_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          quest_id?: string
+          started_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       quests: {
         Row: {
           category: string
