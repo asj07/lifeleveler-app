@@ -109,17 +109,17 @@ export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardP
   };
 
   return (
-    <div className="glass-card rounded-2xl p-6">
+    <div className="glass-card rounded-2xl p-6 animate-fade-in">
       <div className="flex flex-col lg:flex-row items-center gap-6">
         {/* Avatar and Profile */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="relative">
+        <div className="flex flex-col items-center gap-3 animate-scale-in">
+          <div className="relative hover-lift">
             <AvatarUpload 
               avatarUrl={avatarUrl}
               userId={profile.id}
               onAvatarUpdate={setAvatarUrl}
             />
-            <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground">
+            <div className="absolute -bottom-2 -right-2 px-2 py-1 rounded-full bg-gradient-to-r from-primary to-secondary text-xs font-bold text-primary-foreground animate-glow-pulse">
               Lv.{levelInfo.level}
             </div>
           </div>
@@ -216,7 +216,7 @@ export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardP
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto">
-          <div className="stat-card">
+          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.1s' }}>
             <div className="flex items-center gap-2 mb-1">
               <Zap className="w-4 h-4 text-primary" />
               <span className="text-xs text-muted-foreground">XP</span>
@@ -224,7 +224,7 @@ export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardP
             <div className="text-xl font-bold">{profile.xp}</div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.2s' }}>
             <div className="flex items-center gap-2 mb-1">
               <Coins className="w-4 h-4 text-gold" />
               <span className="text-xs text-muted-foreground">Coins</span>
@@ -232,7 +232,7 @@ export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardP
             <div className="text-xl font-bold text-gold">{profile.coins}</div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <div className="flex items-center gap-2 mb-1">
               <Flame className="w-4 h-4 text-destructive" />
               <span className="text-xs text-muted-foreground">Streak</span>
@@ -243,7 +243,7 @@ export function Dashboard({ profile, todayCompleted, onToggleTheme }: DashboardP
             </div>
           </div>
 
-          <div className="stat-card">
+          <div className="stat-card animate-slide-up" style={{ animationDelay: '0.4s' }}>
             <div className="flex items-center gap-2 mb-1">
               <Target className="w-4 h-4 text-secondary" />
               <span className="text-xs text-muted-foreground">Today</span>

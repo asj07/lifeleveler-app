@@ -60,7 +60,7 @@ export function QuestList({
   const tabs: TabFilter[] = ["All", "Health", "Wealth", "Relationships", "Completed"];
 
   return (
-    <div className="glass-card rounded-2xl p-6">
+    <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex flex-wrap gap-2">
           {tabs.map((tab) => (
@@ -110,7 +110,7 @@ export function QuestList({
             return (
               <div
                 key={quest.id}
-                className={`quest-item ${isCompleted ? "completed" : ""} flex items-center gap-3`}
+                className={`quest-item ${isCompleted ? "completed" : ""} flex items-center gap-3 hover-glow`}
               >
                 <Checkbox
                   checked={isCompleted}
