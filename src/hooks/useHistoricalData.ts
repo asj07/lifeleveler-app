@@ -3,8 +3,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Quest, DayLog } from "@/types/quest";
 import { format } from "date-fns";
 
+interface QuestWithTime extends Quest {
+  totalTimeSeconds?: number;
+}
+
 export function useHistoricalData(selectedDate: Date) {
-  const [completedQuests, setCompletedQuests] = useState<Quest[]>([]);
+  const [completedQuests, setCompletedQuests] = useState<QuestWithTime[]>([]);
   const [journalEntry, setJournalEntry] = useState<DayLog>({
     completed: [],
     notes: "",
@@ -34,7 +38,31 @@ export function useHistoricalData(selectedDate: Date) {
         const quests = completions
           .map(c => c.quests)
           .filter(q => q !== null) as Quest[];
-        setCompletedQuests(quests);
+        
+        // Fetch timer sessions for each quest on this date
+        const questsWithTime: QuestWithTime[] = await Promise.all(
+          quests.map(async (quest) => {
+            const { data: sessions } = await supabase
+              .from("quest_timer_sessions")
+              .select("duration_seconds")
+              .eq("quest_id", quest.id)
+              .eq("user_id", user.id)
+              .gte("started_at", `${dateStr}T00:00:00`)
+              .lte("started_at", `${dateStr}T23:59:59`);
+
+            const totalTimeSeconds = sessions?.reduce(
+              (sum, session) => sum + (session.duration_seconds || 0),
+              0
+            ) || 0;
+
+            return {
+              ...quest,
+              totalTimeSeconds,
+            };
+          })
+        );
+        
+        setCompletedQuests(questsWithTime);
         
         const completedIds = quests.map(q => q.id);
         setJournalEntry(prev => ({ ...prev, completed: completedIds }));

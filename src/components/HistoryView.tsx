@@ -6,8 +6,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format, isToday, isFuture } from "date-fns";
 import { useHistoricalData } from "@/hooks/useHistoricalData";
-import { CheckCircle2, Calendar as CalendarIcon, Trophy, Target, Scroll } from "lucide-react";
+import { CheckCircle2, Calendar as CalendarIcon, Trophy, Target, Scroll, Timer } from "lucide-react";
 import { calculateLevel, calculateCoins } from "@/utils/gameLogic";
+
+const formatTime = (totalSeconds: number) => {
+  if (!totalSeconds) return null;
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+};
 
 export function HistoryView() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -95,6 +106,12 @@ export function HistoryView() {
                                       <Badge variant="outline">
                                         {quest.xp} XP
                                       </Badge>
+                                      {quest.totalTimeSeconds && quest.totalTimeSeconds > 0 && (
+                                        <Badge variant="outline" className="flex items-center gap-1">
+                                          <Timer className="h-3 w-3" />
+                                          {formatTime(quest.totalTimeSeconds)}
+                                        </Badge>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
