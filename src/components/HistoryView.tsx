@@ -8,6 +8,7 @@ import { format, isToday, isFuture } from "date-fns";
 import { useHistoricalData } from "@/hooks/useHistoricalData";
 import { CheckCircle2, Calendar as CalendarIcon, Trophy, Target, Scroll, Timer } from "lucide-react";
 import { calculateLevel, calculateCoins } from "@/utils/gameLogic";
+import { formatDateIST } from "@/utils/dateUtils";
 
 const formatTime = (totalSeconds: number) => {
   if (!totalSeconds) return null;
@@ -59,7 +60,7 @@ export function HistoryView() {
             <div>
               <div className="mb-4">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                  {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                  {formatDateIST(selectedDate, 'EEEE, MMMM d, yyyy')}
                   {isViewingToday && (
                     <Badge variant="default" className="ml-2">Today</Badge>
                   )}

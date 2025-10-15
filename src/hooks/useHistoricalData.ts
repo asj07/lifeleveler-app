@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Quest, DayLog } from "@/types/quest";
-import { format } from "date-fns";
+import { formatDateIST } from "@/utils/dateUtils";
 
 interface QuestWithTime extends Quest {
   totalTimeSeconds?: number;
@@ -19,7 +19,7 @@ export function useHistoricalData(selectedDate: Date) {
   useEffect(() => {
     const fetchHistoricalData = async () => {
       setLoading(true);
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      const dateStr = formatDateIST(selectedDate, 'yyyy-MM-dd');
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {

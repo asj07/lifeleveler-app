@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2, Coins, Calendar, Sun, Moon, Timer } from "lucide-react";
 import { calculateCoins } from "@/utils/gameLogic";
 import { QuestTimer } from "@/components/QuestTimer";
+import { formatDateIST } from "@/utils/dateUtils";
 
 interface QuestListProps {
   quests: Quest[];
@@ -76,11 +77,7 @@ export function QuestList({
         
         <div className="flex items-center gap-2">
           <span className="text-xs px-3 py-1 rounded-full bg-muted/30 border border-border/50">
-            {new Date().toLocaleDateString(undefined, {
-              weekday: "short",
-              month: "short",
-              day: "numeric",
-            })}
+            {formatDateIST(new Date(), 'EEE, MMM d')}
           </span>
           <Button
             variant="outline"

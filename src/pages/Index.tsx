@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSupabaseGameState } from "@/hooks/useSupabaseGameState";
 import { supabase } from "@/integrations/supabase/client";
+import { getTodayIST } from "@/utils/dateUtils";
 import { Header } from "@/components/Header";
 import { Dashboard } from "@/components/Dashboard";
 import { AddQuest } from "@/components/AddQuest";
@@ -40,7 +41,7 @@ const Index = () => {
       const { data } = await supabase
         .from('journal_entries')
         .select('notes, affirmation')
-        .eq('date', new Date().toISOString().split('T')[0])
+        .eq('date', getTodayIST())
         .maybeSingle();
       
       if (data) {

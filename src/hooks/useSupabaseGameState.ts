@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { QuestCategory, QuestType } from '@/types/quest';
 import { calculateLevel, getDefaultQuests } from '@/utils/gameLogic';
 import { useToast } from '@/hooks/use-toast';
+import { getTodayIST } from '@/utils/dateUtils';
 
 interface ProfileData {
   user_id: string;
@@ -133,7 +134,7 @@ export function useSupabaseGameState() {
       }
 
       // Load today's completions
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayIST();
       const { data: completionsData } = await supabase
         .from('quest_completions')
         .select('*')
@@ -157,7 +158,7 @@ export function useSupabaseGameState() {
 
   // Update streak
   const updateStreak = async (currentStats: UserStats) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getTodayIST();
     const lastActive = currentStats.last_active;
     
     if (lastActive === today) return; // Already updated today
@@ -206,7 +207,7 @@ export function useSupabaseGameState() {
       if (!quest) return;
 
       // Add completion
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayIST();
       const { error: completionError } = await supabase
         .from('quest_completions')
         .insert({
@@ -263,7 +264,7 @@ export function useSupabaseGameState() {
       if (!quest) return;
 
       // Remove completion
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayIST();
       const { error: completionError } = await supabase
         .from('quest_completions')
         .delete()
@@ -402,7 +403,7 @@ export function useSupabaseGameState() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = getTodayIST();
 
       // Check if entry exists
       const { data: existing } = await supabase

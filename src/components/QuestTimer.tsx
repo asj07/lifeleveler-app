@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Play, Pause, Square, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getNowIST } from "@/utils/dateUtils";
 
 interface QuestTimerProps {
   questId: string;
@@ -73,14 +74,14 @@ export function QuestTimer({ questId, questTitle, onClose }: QuestTimerProps) {
       }
 
       sessionIdRef.current = data.id;
-      startTimeRef.current = new Date();
+      startTimeRef.current = getNowIST();
     } else {
       // Pause timer - update session
       if (sessionIdRef.current) {
         await supabase
           .from('quest_timer_sessions')
           .update({
-            ended_at: new Date().toISOString(),
+            ended_at: getNowIST().toISOString(),
             duration_seconds: seconds,
           })
           .eq('id', sessionIdRef.current);
@@ -95,7 +96,7 @@ export function QuestTimer({ questId, questTitle, onClose }: QuestTimerProps) {
       await supabase
         .from('quest_timer_sessions')
         .update({
-          ended_at: new Date().toISOString(),
+          ended_at: getNowIST().toISOString(),
           duration_seconds: seconds,
         })
         .eq('id', sessionIdRef.current);
@@ -118,7 +119,7 @@ export function QuestTimer({ questId, questTitle, onClose }: QuestTimerProps) {
       await supabase
         .from('quest_timer_sessions')
         .update({
-          ended_at: new Date().toISOString(),
+          ended_at: getNowIST().toISOString(),
           duration_seconds: seconds,
         })
         .eq('id', sessionIdRef.current);
