@@ -110,20 +110,21 @@ export function QuestList({
             return (
               <div
                 key={quest.id}
-                className={`quest-item ${isCompleted ? "completed" : ""} flex items-center gap-3`}
+                className={`quest-item ${isCompleted ? "completed" : ""} flex items-center gap-2 sm:gap-3`}
               >
                 <Checkbox
                   checked={isCompleted}
                   onCheckedChange={(checked) =>
                     handleToggle(quest.id, checked as boolean)
                   }
+                  className="shrink-0"
                 />
                 
-                <div className="flex-1">
-                  <div className={`font-medium ${isCompleted ? "line-through" : ""}`}>
+                <div className="flex-1 min-w-0">
+                  <div className={`font-medium truncate ${isCompleted ? "line-through" : ""}`}>
                     {quest.title}
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1 flex-wrap">
                     <span>{quest.category}</span>
                     <span>•</span>
                     <span>{quest.xp} XP</span>
@@ -135,8 +136,8 @@ export function QuestList({
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-gold/20 text-gold border border-gold/30">
+                <div className="flex items-center gap-1 shrink-0">
+                  <span className="hidden sm:flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-gold/20 text-gold border border-gold/30">
                     <Coins className="w-3 h-3" />
                     +{coins}
                   </span>
@@ -144,7 +145,7 @@ export function QuestList({
                     variant="ghost"
                     size="sm"
                     onClick={() => setActiveTimer(quest.id)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground p-2"
                     title="Start timer"
                   >
                     <Timer className="w-4 h-4" />
@@ -153,7 +154,7 @@ export function QuestList({
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(quest.id)}
-                    className="text-destructive hover:text-destructive/80"
+                    className="text-destructive hover:text-destructive/80 p-2"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
