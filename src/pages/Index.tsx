@@ -82,11 +82,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6">
+          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6 px-2">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
               Today's Quests
@@ -101,8 +101,8 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="today">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <TabsContent value="today" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
               <div className="lg:col-span-2">
                 <Dashboard
                   profile={profile}
@@ -115,7 +115,7 @@ const Index = () => {
               </div>
             </div>
             
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <QuestList
                 quests={quests}
                 completedToday={completedToday}
@@ -134,11 +134,11 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="history">
+          <TabsContent value="history" className="space-y-6">
             <HistoryView />
           </TabsContent>
 
-          <TabsContent value="shop">
+          <TabsContent value="shop" className="space-y-6">
             <Shop 
               coins={profile.coins} 
               onCoinsUpdate={updateCoins}
@@ -146,7 +146,7 @@ const Index = () => {
           </TabsContent>
         </Tabs>
         
-        <footer className="text-center text-xs text-muted-foreground mt-8 pb-4">
+        <footer className="text-center text-xs text-muted-foreground pt-6 pb-4">
           Your progress is automatically saved to the cloud
         </footer>
       </div>
