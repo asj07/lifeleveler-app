@@ -349,45 +349,74 @@ export const Leaderboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {entries.map((entry) => {
+              {entries.map((entry, index) => {
                 const isCurrentUser = entry.user_id === currentUserId;
                 const isTopThree = entry.rank <= 3;
+                const hasChanged = changedUsers.has(entry.user_id);
+                const rankChange = getRankChange(entry.user_id, entry.rank);
                 
                 return (
                   <TableRow
                     key={entry.user_id}
-                    className={`
-                      transition-all duration-200 
-                      ${isCurrentUser ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-muted/50"}
-                      ${isTopThree ? "font-medium" : ""}
-                    `}
+                    className={cn(
+                      "transition-all duration-300",
+                      isCurrentUser ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-muted/50",
+                      isTopThree && "font-medium",
+                      hasChanged && "animate-pulse bg-secondary/20"
+                    )}
+                    style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <TableCell className="font-medium">
-                      <div className="flex items-center justify-center w-8 h-8">
+                      <div className="flex items-center justify-center w-8 h-8 relative">
                         {getRankIcon(entry.rank)}
+                        {rankChange !== null && rankChange !== 0 && (
+                          <span 
+                            className={cn(
+                              "absolute -right-1 -top-1 text-[10px] font-bold animate-fade-in",
+                              rankChange > 0 ? "text-green-500" : "text-red-500"
+                            )}
+                          >
+                            {rankChange > 0 ? `↑${rankChange}` : `↓${Math.abs(rankChange)}`}
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className={`h-8 w-8 ${isTopThree ? "ring-2 ring-primary/30" : ""}`}>
+                        <Avatar className={cn(
+                          "h-8 w-8 transition-all duration-300",
+                          isTopThree && "ring-2 ring-primary/30",
+                          hasChanged && "ring-2 ring-secondary animate-pulse"
+                        )}>
                           <AvatarImage src={entry.avatar_url || undefined} />
                           <AvatarFallback className="text-xs">
                             {entry.display_name[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className={`truncate max-w-[150px] sm:max-w-[200px] ${isCurrentUser ? "text-primary font-semibold" : ""}`}>
+                        <span className={cn(
+                          "truncate max-w-[150px] sm:max-w-[200px]",
+                          isCurrentUser && "text-primary font-semibold"
+                        )}>
                           {entry.display_name}
                           {isCurrentUser && <span className="text-xs ml-2 opacity-70">(You)</span>}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={`font-mono ${isTopThree ? "text-primary font-bold" : ""}`}>
-                        {entry.weekly_xp.toLocaleString()}
+                      <span className={cn(
+                        "font-mono tabular-nums",
+                        isTopThree && "text-primary font-bold",
+                        hasChanged && "text-secondary font-bold"
+                      )}>
+                        <AnimatedNumber value={entry.weekly_xp} duration={hasChanged ? 1500 : 0} />
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className={`${tierConfig[entry.tier].color} font-bold px-3`}>
+                      <Badge className={cn(
+                        tierConfig[entry.tier].color,
+                        "font-bold px-3 transition-all duration-300",
+                        hasChanged && "animate-scale-in"
+                      )}>
                         {tierConfig[entry.tier].label}
                       </Badge>
                     </TableCell>
