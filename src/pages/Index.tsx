@@ -10,7 +10,7 @@ import { Journal } from "@/components/Journal";
 import { HistoryView } from "@/components/HistoryView";
 import { Shop } from "@/components/Shop";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, History, ShoppingCart } from "lucide-react";
+import { Home, History, ShoppingCart, Trophy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
