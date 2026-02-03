@@ -276,10 +276,21 @@ export const Leaderboard = () => {
   return (
     <Card className="animate-fade-in">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-amber-500" />
-          Weekly Leaderboard
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-amber-500" />
+            Weekly Leaderboard
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="h-8 w-8 p-0"
+          >
+            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground">
           Resets every Sunday at 23:59 IST
         </p>
