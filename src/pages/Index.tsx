@@ -9,6 +9,7 @@ import { QuestList } from "@/components/QuestList";
 import { Journal } from "@/components/Journal";
 import { HistoryView } from "@/components/HistoryView";
 import { Shop } from "@/components/Shop";
+import { Leaderboard } from "@/components/Leaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Home, History, ShoppingCart, Trophy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
