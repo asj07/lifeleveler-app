@@ -314,6 +314,35 @@ export const Leaderboard = () => {
           </Table>
         </div>
 
+        {/* Current User Ranking (if not on leaderboard) */}
+        {currentUserRank && !currentUserRank.isOnLeaderboard && (
+          <div className="mt-6 pt-4 border-t">
+            <p className="text-xs text-muted-foreground mb-3 font-medium">Your Ranking</p>
+            <div className="flex items-center gap-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-muted font-mono text-lg font-bold">
+                {currentUserRank.rank}
+              </div>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={currentUserRank.avatar_url || undefined} />
+                <AvatarFallback>{currentUserRank.display_name[0]?.toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-primary truncate">
+                  {currentUserRank.display_name} <span className="text-xs opacity-70">(You)</span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {currentUserRank.weekly_xp === 0 
+                    ? "No XP earned this week - complete quests to rank up!" 
+                    : `${currentUserRank.weekly_xp.toLocaleString()} XP`}
+                </p>
+              </div>
+              <Badge className={`${tierConfig[currentUserRank.tier].color} font-bold px-3`}>
+                {currentUserRank.tier}
+              </Badge>
+            </div>
+          </div>
+        )}
+
         {/* Tier Legend */}
         <div className="mt-6 pt-4 border-t">
           <p className="text-xs text-muted-foreground mb-2 font-medium">Tier System</p>
