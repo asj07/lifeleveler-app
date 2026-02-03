@@ -54,11 +54,21 @@ const getRankIcon = (rank: number) => {
   }
 };
 
+interface CurrentUserRank {
+  display_name: string;
+  avatar_url: string | null;
+  weekly_xp: number;
+  rank: number;
+  tier: "A" | "B" | "C" | "D" | "E";
+  isOnLeaderboard: boolean;
+}
+
 export const Leaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserRank, setCurrentUserRank] = useState<CurrentUserRank | null>(null);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -82,6 +92,41 @@ export const Leaderboard = () => {
         }));
 
         setEntries(entriesWithTier);
+
+        // Check if current user is on leaderboard
+        if (user) {
+          const userEntry = entriesWithTier.find(e => e.user_id === user.id);
+          
+          if (userEntry) {
+            setCurrentUserRank({
+              display_name: userEntry.display_name,
+              avatar_url: userEntry.avatar_url,
+              weekly_xp: userEntry.weekly_xp,
+              rank: userEntry.rank,
+              tier: userEntry.tier,
+              isOnLeaderboard: true,
+            });
+          } else {
+            // User not on leaderboard - fetch their profile to show rank
+            const { data: profile } = await supabase
+              .from("profiles")
+              .select("display_name, avatar_url")
+              .eq("user_id", user.id)
+              .maybeSingle();
+
+            if (profile) {
+              // User has 0 XP this week, rank would be after all leaderboard entries
+              setCurrentUserRank({
+                display_name: profile.display_name || "Anonymous",
+                avatar_url: profile.avatar_url,
+                weekly_xp: 0,
+                rank: total + 1,
+                tier: "E",
+                isOnLeaderboard: false,
+              });
+            }
+          }
+        }
       } catch (err: any) {
         console.error("Leaderboard fetch error:", err);
         setError(err.message || "Failed to load leaderboard");
