@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Medal, Award, Crown, Flame } from "lucide-react";
+import { Trophy, Medal, Award, Crown, Flame, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -63,35 +65,94 @@ interface CurrentUserRank {
   isOnLeaderboard: boolean;
 }
 
+// Animated number component for XP
+const AnimatedNumber = ({ value, duration = 1000 }: { value: number; duration?: number }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const previousValue = useRef(0);
+
+  useEffect(() => {
+    const startValue = previousValue.current;
+    const endValue = value;
+    const startTime = Date.now();
+
+    const animate = () => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const currentValue = Math.floor(startValue + (endValue - startValue) * easeOutQuart);
+      
+      setDisplayValue(currentValue);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        previousValue.current = endValue;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+
+  return <span>{displayValue.toLocaleString()}</span>;
+};
+
 export const Leaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRank, setCurrentUserRank] = useState<CurrentUserRank | null>(null);
+  const [previousRanks, setPreviousRanks] = useState<Record<string, number>>({});
+  const [changedUsers, setChangedUsers] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
+  const fetchLeaderboard = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
         setLoading(true);
-        setError(null);
+      }
+      setError(null);
 
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUserId(user?.id || null);
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
 
-        // Fetch leaderboard data
-        const { data, error: fetchError } = await supabase.rpc("get_weekly_leaderboard");
+      // Fetch leaderboard data
+      const { data, error: fetchError } = await supabase.rpc("get_weekly_leaderboard");
 
-        if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-        const total = data?.length || 0;
-        const entriesWithTier: LeaderboardEntry[] = (data || []).map((entry: any) => ({
-          ...entry,
-          tier: calculateTier(entry.rank, total),
-        }));
+      const total = data?.length || 0;
+      const entriesWithTier: LeaderboardEntry[] = (data || []).map((entry: any) => ({
+        ...entry,
+        tier: calculateTier(entry.rank, total),
+      }));
 
-        setEntries(entriesWithTier);
+      // Track rank changes for animations
+      if (isRefresh && entries.length > 0) {
+        const newChangedUsers = new Set<string>();
+        const newPreviousRanks: Record<string, number> = {};
+        
+        entriesWithTier.forEach((entry) => {
+          const oldEntry = entries.find(e => e.user_id === entry.user_id);
+          if (oldEntry) {
+            newPreviousRanks[entry.user_id] = oldEntry.rank;
+            if (oldEntry.rank !== entry.rank || oldEntry.weekly_xp !== entry.weekly_xp) {
+              newChangedUsers.add(entry.user_id);
+            }
+          }
+        });
+        
+        setPreviousRanks(newPreviousRanks);
+        setChangedUsers(newChangedUsers);
+        
+        // Clear changed users after animation
+        setTimeout(() => setChangedUsers(new Set()), 2000);
+      }
+
+      setEntries(entriesWithTier);
 
         // Check if current user is on leaderboard
         if (user) {
@@ -127,16 +188,28 @@ export const Leaderboard = () => {
             }
           }
         }
-      } catch (err: any) {
-        console.error("Leaderboard fetch error:", err);
-        setError(err.message || "Failed to load leaderboard");
-      } finally {
-        setLoading(false);
-      }
-    };
+    } catch (err: any) {
+      console.error("Leaderboard fetch error:", err);
+      setError(err.message || "Failed to load leaderboard");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchLeaderboard();
   }, []);
+
+  const handleRefresh = () => {
+    fetchLeaderboard(true);
+  };
+
+  const getRankChange = (userId: string, currentRank: number) => {
+    const prevRank = previousRanks[userId];
+    if (prevRank === undefined) return null;
+    return prevRank - currentRank; // positive = moved up, negative = moved down
+  };
 
   if (loading) {
     return (
@@ -203,10 +276,21 @@ export const Leaderboard = () => {
   return (
     <Card className="animate-fade-in">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5 text-amber-500" />
-          Weekly Leaderboard
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-amber-500" />
+            Weekly Leaderboard
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="h-8 w-8 p-0"
+          >
+            <RefreshCw className={cn("h-4 w-4", refreshing && "animate-spin")} />
+          </Button>
+        </div>
         <p className="text-sm text-muted-foreground">
           Resets every Sunday at 23:59 IST
         </p>
@@ -265,45 +349,74 @@ export const Leaderboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {entries.map((entry) => {
+              {entries.map((entry, index) => {
                 const isCurrentUser = entry.user_id === currentUserId;
                 const isTopThree = entry.rank <= 3;
+                const hasChanged = changedUsers.has(entry.user_id);
+                const rankChange = getRankChange(entry.user_id, entry.rank);
                 
                 return (
                   <TableRow
                     key={entry.user_id}
-                    className={`
-                      transition-all duration-200 
-                      ${isCurrentUser ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-muted/50"}
-                      ${isTopThree ? "font-medium" : ""}
-                    `}
+                    className={cn(
+                      "transition-all duration-300",
+                      isCurrentUser ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-muted/50",
+                      isTopThree && "font-medium",
+                      hasChanged && "animate-pulse bg-secondary/20"
+                    )}
+                    style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <TableCell className="font-medium">
-                      <div className="flex items-center justify-center w-8 h-8">
+                      <div className="flex items-center justify-center w-8 h-8 relative">
                         {getRankIcon(entry.rank)}
+                        {rankChange !== null && rankChange !== 0 && (
+                          <span 
+                            className={cn(
+                              "absolute -right-1 -top-1 text-[10px] font-bold animate-fade-in",
+                              rankChange > 0 ? "text-green-500" : "text-red-500"
+                            )}
+                          >
+                            {rankChange > 0 ? `↑${rankChange}` : `↓${Math.abs(rankChange)}`}
+                          </span>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <Avatar className={`h-8 w-8 ${isTopThree ? "ring-2 ring-primary/30" : ""}`}>
+                        <Avatar className={cn(
+                          "h-8 w-8 transition-all duration-300",
+                          isTopThree && "ring-2 ring-primary/30",
+                          hasChanged && "ring-2 ring-secondary animate-pulse"
+                        )}>
                           <AvatarImage src={entry.avatar_url || undefined} />
                           <AvatarFallback className="text-xs">
                             {entry.display_name[0]?.toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className={`truncate max-w-[150px] sm:max-w-[200px] ${isCurrentUser ? "text-primary font-semibold" : ""}`}>
+                        <span className={cn(
+                          "truncate max-w-[150px] sm:max-w-[200px]",
+                          isCurrentUser && "text-primary font-semibold"
+                        )}>
                           {entry.display_name}
                           {isCurrentUser && <span className="text-xs ml-2 opacity-70">(You)</span>}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <span className={`font-mono ${isTopThree ? "text-primary font-bold" : ""}`}>
-                        {entry.weekly_xp.toLocaleString()}
+                      <span className={cn(
+                        "font-mono tabular-nums",
+                        isTopThree && "text-primary font-bold",
+                        hasChanged && "text-secondary font-bold"
+                      )}>
+                        <AnimatedNumber value={entry.weekly_xp} duration={hasChanged ? 1500 : 0} />
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className={`${tierConfig[entry.tier].color} font-bold px-3`}>
+                      <Badge className={cn(
+                        tierConfig[entry.tier].color,
+                        "font-bold px-3 transition-all duration-300",
+                        hasChanged && "animate-scale-in"
+                      )}>
                         {tierConfig[entry.tier].label}
                       </Badge>
                     </TableCell>
