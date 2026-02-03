@@ -65,12 +65,46 @@ interface CurrentUserRank {
   isOnLeaderboard: boolean;
 }
 
+// Animated number component for XP
+const AnimatedNumber = ({ value, duration = 1000 }: { value: number; duration?: number }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const previousValue = useRef(0);
+
+  useEffect(() => {
+    const startValue = previousValue.current;
+    const endValue = value;
+    const startTime = Date.now();
+
+    const animate = () => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / duration, 1);
+      const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+      const currentValue = Math.floor(startValue + (endValue - startValue) * easeOutQuart);
+      
+      setDisplayValue(currentValue);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        previousValue.current = endValue;
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [value, duration]);
+
+  return <span>{displayValue.toLocaleString()}</span>;
+};
+
 export const Leaderboard = () => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [currentUserRank, setCurrentUserRank] = useState<CurrentUserRank | null>(null);
+  const [previousRanks, setPreviousRanks] = useState<Record<string, number>>({});
+  const [changedUsers, setChangedUsers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
