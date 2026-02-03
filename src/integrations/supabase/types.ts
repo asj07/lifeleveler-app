@@ -321,7 +321,7 @@ export type Database = {
     }
     Functions: {
       get_admin_redemptions: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           amount_inr: number
           coins_redeemed: number
