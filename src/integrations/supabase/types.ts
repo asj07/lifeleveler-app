@@ -336,6 +336,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_weekly_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          rank: number
+          user_id: string
+          weekly_xp: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -9,8 +9,9 @@ import { QuestList } from "@/components/QuestList";
 import { Journal } from "@/components/Journal";
 import { HistoryView } from "@/components/HistoryView";
 import { Shop } from "@/components/Shop";
+import { Leaderboard } from "@/components/Leaderboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home, History, ShoppingCart } from "lucide-react";
+import { Home, History, ShoppingCart, Trophy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Index = () => {
@@ -87,10 +88,16 @@ const Index = () => {
         <Header onExport={exportData} onImport={importData} onReset={resetData} />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-[600px] mx-auto mb-6 px-2">
+          <TabsList className="grid w-full grid-cols-4 max-w-[700px] mx-auto mb-6 px-2">
             <TabsTrigger value="today" className="flex items-center gap-2">
               <Home className="h-4 w-4" />
-              Today's Quests
+              <span className="hidden sm:inline">Today's Quests</span>
+              <span className="sm:hidden">Today</span>
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Leaderboard</span>
+              <span className="sm:hidden">Ranks</span>
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -133,6 +140,10 @@ const Index = () => {
                 onSave={updateNotes}
               />
             </div>
+          </TabsContent>
+
+          <TabsContent value="leaderboard" className="space-y-6">
+            <Leaderboard />
           </TabsContent>
 
           <TabsContent value="history" className="space-y-6">
