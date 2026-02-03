@@ -106,28 +106,53 @@ export const Leaderboard = () => {
   const [previousRanks, setPreviousRanks] = useState<Record<string, number>>({});
   const [changedUsers, setChangedUsers] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const fetchLeaderboard = async () => {
-      try {
+  const fetchLeaderboard = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setRefreshing(true);
+      } else {
         setLoading(true);
-        setError(null);
+      }
+      setError(null);
 
-        // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
-        setCurrentUserId(user?.id || null);
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
 
-        // Fetch leaderboard data
-        const { data, error: fetchError } = await supabase.rpc("get_weekly_leaderboard");
+      // Fetch leaderboard data
+      const { data, error: fetchError } = await supabase.rpc("get_weekly_leaderboard");
 
-        if (fetchError) throw fetchError;
+      if (fetchError) throw fetchError;
 
-        const total = data?.length || 0;
-        const entriesWithTier: LeaderboardEntry[] = (data || []).map((entry: any) => ({
-          ...entry,
-          tier: calculateTier(entry.rank, total),
-        }));
+      const total = data?.length || 0;
+      const entriesWithTier: LeaderboardEntry[] = (data || []).map((entry: any) => ({
+        ...entry,
+        tier: calculateTier(entry.rank, total),
+      }));
 
-        setEntries(entriesWithTier);
+      // Track rank changes for animations
+      if (isRefresh && entries.length > 0) {
+        const newChangedUsers = new Set<string>();
+        const newPreviousRanks: Record<string, number> = {};
+        
+        entriesWithTier.forEach((entry) => {
+          const oldEntry = entries.find(e => e.user_id === entry.user_id);
+          if (oldEntry) {
+            newPreviousRanks[entry.user_id] = oldEntry.rank;
+            if (oldEntry.rank !== entry.rank || oldEntry.weekly_xp !== entry.weekly_xp) {
+              newChangedUsers.add(entry.user_id);
+            }
+          }
+        });
+        
+        setPreviousRanks(newPreviousRanks);
+        setChangedUsers(newChangedUsers);
+        
+        // Clear changed users after animation
+        setTimeout(() => setChangedUsers(new Set()), 2000);
+      }
+
+      setEntries(entriesWithTier);
 
         // Check if current user is on leaderboard
         if (user) {
