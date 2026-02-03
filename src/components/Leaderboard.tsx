@@ -188,16 +188,28 @@ export const Leaderboard = () => {
             }
           }
         }
-      } catch (err: any) {
-        console.error("Leaderboard fetch error:", err);
-        setError(err.message || "Failed to load leaderboard");
-      } finally {
-        setLoading(false);
-      }
-    };
+    } catch (err: any) {
+      console.error("Leaderboard fetch error:", err);
+      setError(err.message || "Failed to load leaderboard");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchLeaderboard();
   }, []);
+
+  const handleRefresh = () => {
+    fetchLeaderboard(true);
+  };
+
+  const getRankChange = (userId: string, currentRank: number) => {
+    const prevRank = previousRanks[userId];
+    if (prevRank === undefined) return null;
+    return prevRank - currentRank; // positive = moved up, negative = moved down
+  };
 
   if (loading) {
     return (
