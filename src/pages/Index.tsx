@@ -142,6 +142,10 @@ const Index = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="leaderboard" className="space-y-6">
+            <Leaderboard />
+          </TabsContent>
+
           <TabsContent value="history" className="space-y-6">
             <HistoryView />
           </TabsContent>
